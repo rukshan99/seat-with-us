@@ -1,6 +1,6 @@
 # Seat With Us — Design Brief
 
-> Status: **proposal, awaiting approval**. Nothing is built yet.
+> Status: **approved 15 Nov 2026**, with the decisions in §13.
 > References: `docs/reference/invitation-*.webp` (the printed cards), `docs/inspiration/README.md` (research).
 
 ## 1. The subject
@@ -27,7 +27,13 @@ Every page also has a small switch at the top, *Wedding · Homecoming*, for anyo
 
 ## 3. Aesthetic direction: the invitation, brought to life
 
-The guest has just looked at a printed card, so the screen should feel like that card coming alive: the same paper colour, the same petal artwork in the top-right corner bleeding off the edge, and the same letterspaced capitals.
+The guest has just looked at a printed card, so the screen should feel like that card coming alive: the same paper colour, petals in the top-right corner bleeding off the edge, and the same letterspaced capitals.
+
+The petals are **our own vector artwork** in the spirit of the card, not a copy of it. They're ruffled, fan-shaped petals with fine radiating veins and a light edge, generated as SVG, so they:
+- stay perfectly sharp on any screen,
+- weigh a few KB,
+- take their colours from the theme, so one drawing serves both events,
+- can move a little.
 
 - **Phone:** the screen *is* the card, edge to edge.
 - **Desktop:** the card floats on the coloured surround exactly as in the invitation mockups (moss for the wedding, deep oxblood for the homecoming), about 28 rem wide. This turns the "what do we do with all this desktop space" problem into the brand itself.
@@ -162,7 +168,8 @@ The tone is warm, short and specific. Errors don't apologise or stay vague.
 - **Performance target:** HTML, CSS and JS under 30 KB compressed. Fonts about 60 KB. Petal artwork about 25 KB (AVIF/WebP). **Under 120 KB on first load**, with no framework.
 - **Stack:** Vite builds plain HTML, CSS and JS into two pages. It handles the `/seat-with-us/` base path, adds content hashes to file names, minifies, and runs the font and image pipeline. React or similar isn't worth its 40 KB+ for one input and one card.
 - **Guest data:** built into the JS file, so there's no second download before search works. A script converts your spreadsheet into JSON.
-- **Privacy:** only the display name, table and party size are published. Internal notes from the spreadsheet such as "(Police)" are removed. `noindex` stops guest names showing up in Google.
+- **Privacy:** only the display name, the note in brackets (needed to tell apart two guests with the same name, e.g. "Swarna Akka (Wadduwa)"), the group, the table and the party size are published. Quantities, drinks and invitation counts are not. **Everything in the spreadsheet's name column is public**, so it should read the way a guest would want to see it. `noindex` stops guest names showing up in Google.
+- **Offline:** a small service worker stores the page after the first visit. A guest who opened the link at home can still find their table on weak resort signal. Pages always try the network first (giving up after 3 s), so an updated guest list reaches everyone who has signal.
 
 ## 12. Self-critique: what I changed after checking against generic defaults
 
@@ -175,8 +182,8 @@ The `frontend-design` skill warns that AI design tends to fall back on *cream ba
 - **Revised:** dark by default → light for the daytime wedding (§3).
 - **Chanel test:** I removed a planned confetti burst on the reveal. The card opening is the moment, and one accessory is enough.
 
-## 13. Open questions for you
+## 13. Decisions (15 Nov 2026)
 
-1. **Petal artwork:** for now I'll crop the petals from the invitation images you sent. The same-colour trick lets the crop blend into the page with no visible edges. Can the designer send the **original high-resolution artwork** (PNG/PSD/AI)? It would look sharper on high-resolution screens.
-2. **Photos:** are you happy for the engagement photos to appear only in link previews, or do you want one visible on the page, for example beneath the result card?
-3. **Offline:** should the page keep working with no signal once it has been opened once? A small service worker can do this. It's useful if the resort's signal is weak, but it adds a little complexity when the guest list changes.
+1. **Petal artwork:** nothing is cropped from the invitation images, since a crop can't meet the quality bar. We draw original vector petals instead (see §3).
+2. **Photos:** used where they matter most, in the **link preview** that appears when the URL is shared on WhatsApp or iMessage, with one preview per event. They stay off the page itself so the petals and the escort card have the screen to themselves.
+3. **Offline:** yes, using a service worker (see §11).
