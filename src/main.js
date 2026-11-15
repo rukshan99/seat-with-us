@@ -62,9 +62,24 @@ function transition(update) {
   document.startViewTransition(update);
 }
 
+/**
+ * Compact layout: the names shrink to one line so the search sits at the top.
+ *
+ * Entering it must be synchronous. When the input gains focus, the phone pans
+ * the screen to wherever the input is at that instant; if the layout moved
+ * afterwards (say, inside a view transition), the input would slide out of
+ * view under the keyboard. So the input jumps into place at once and only a
+ * short fade-and-settle plays — never a slide of the input itself.
+ */
 function setCompact(on) {
   if (html.classList.contains('is-compact') === on) return;
-  transition(() => html.classList.toggle('is-compact', on));
+  if (!on) return transition(() => html.classList.remove('is-compact'));
+
+  html.classList.add('is-compact');
+  if (reducedMotion.matches) return;
+  const settle = { duration: 280, easing: 'cubic-bezier(0.2, 0.8, 0.2, 1)' };
+  $('.names').animate([{ opacity: 0, transform: 'translateY(-6px)' }, { opacity: 1, transform: 'none' }], settle);
+  el.finder.animate([{ opacity: 0.4 }, { opacity: 1 }], settle);
 }
 
 const storage = {
@@ -130,7 +145,7 @@ function renderMatches(results, query = '') {
       name.append(highlighted(guest.name, query));
       li.append(name);
 
-      const details = [guest.hint, guest.group, partyLabel(guest.party).toLowerCase()].filter(Boolean);
+      const details = [guest.hint, partyLabel(guest.party).toLowerCase()].filter(Boolean);
       if (details.length) {
         const meta = document.createElement('span');
         meta.className = 'match__meta';
@@ -333,9 +348,40 @@ el.clear.addEventListener('click', () => {
   el.input.focus();
 });
 
-// On a phone the keyboard covers half the screen: tuck the names away while typing.
+// On a phone the keyboard covers half the screen, so the names tuck away while
+// typing. The order matters: the phone pans to wherever the input is when it
+// gains focus. So on a tap we take over: cancel the browser's own focus, move
+// the input to the top, then focus it ourselves — still inside the tap, which
+// is what lets the keyboard open.
+let touchStart = null;
+for (const target of [el.input, $('.finder__label')]) {
+  target.addEventListener(
+    'touchstart',
+    (e) => {
+      const t = e.touches[0];
+      touchStart = { x: t.clientX, y: t.clientY };
+    },
+    { passive: true },
+  );
+  target.addEventListener('touchend', (e) => {
+    if (!smallScreen.matches || html.classList.contains('is-compact') || document.activeElement === el.input) return;
+    const t = e.changedTouches[0];
+    const moved = touchStart ? Math.hypot(t.clientX - touchStart.x, t.clientY - touchStart.y) : Infinity;
+    if (moved > 10) return; // that was a scroll, not a tap
+    e.preventDefault();
+    setCompact(true);
+    el.input.focus({ preventScroll: true });
+  });
+}
+
 el.input.addEventListener('focus', () => {
-  if (smallScreen.matches) setCompact(true);
+  if (!smallScreen.matches) return;
+  setCompact(true);
+  // Belt and braces: once the keyboard is up, make sure we're at the top.
+  const toTop = () => window.scrollTo(0, 0);
+  requestAnimationFrame(toTop);
+  window.visualViewport?.addEventListener('resize', toTop, { once: true });
+  setTimeout(toTop, 400);
 });
 el.input.addEventListener('blur', () => {
   setTimeout(() => {
