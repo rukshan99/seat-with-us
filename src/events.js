@@ -17,10 +17,12 @@ export const EVENTS = {
     themeColor: '#EEE7DA',
     photos: {
       preview: 'SPP07037', // link preview when the URL is shared
-      backdrop: 'SPP07341', // left half of the screen on desktop
-      backdropFocus: '52% 70%',
+      petal: 'SPP07416', // printed on the large petal, toned to the theme
+      // Where the photo sits on the petal (x, y, width in petal-drawing units, 600 × 800)
+      // and where the faces are in the photo (fractions), so they stay in the soft focus.
+      petalBox: [60, -15, 510],
+      petalFaces: [0.56, 0.27],
       keepsake: 'SPP07061', // the print under the result card
-      alt: 'Ashinsana and Pasindu dancing on the beach at dusk',
       keepsakeAlt: 'Ashinsana and Pasindu embracing by the sea',
     },
     title: 'Find your table · Ashinsana & Pasindu',
@@ -39,10 +41,10 @@ export const EVENTS = {
     themeColor: '#3A0709',
     photos: {
       preview: 'SPP07416',
-      backdrop: 'SPP07547',
-      backdropFocus: '42% 72%',
+      petal: 'SPP07061',
+      petalBox: [65, -35, 540],
+      petalFaces: [0.52, 0.35],
       keepsake: 'SPP07416',
-      alt: 'Pasindu and Ashinsana walking hand in hand along the shore at dusk',
       keepsakeAlt: 'Pasindu and Ashinsana laughing together on the beach',
     },
     title: 'Find your table · Pasindu & Ashinsana’s homecoming',

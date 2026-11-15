@@ -8,7 +8,8 @@
  *   favicon.svg, favicon-32.png, apple-touch-icon.png
  *   og/<event>.jpg                      link previews for WhatsApp / iMessage / Facebook
  * src/photos/  (fingerprinted by Vite)
- *   photo-<event>-backdrop-<w>.avif|jpg  left half of the screen on desktop
+ *   photo-<event>-petal.webp             printed on the large petal (grayscale: the
+ *                                        petal supplies the colour, see main.css)
  *   photo-<event>-keepsake-<w>.avif|jpg  the print under the result card
  *
  * Sources are assets/photos/<id>.jpg (1800 px copies of the engagement shoot);
@@ -94,11 +95,13 @@ await mkdir(photoDir, { recursive: true });
  * (about 5–9% down every frame) so their credit stays whole; the rest comes
  * off the sand at the bottom.
  */
+async function crop45(id) {
+  const { width, height } = await sharp(path.join(root, 'assets/photos', `${id}.jpg`)).metadata();
+  return { left: 0, top: Math.round(height * 0.03), width, height: Math.round(width * 1.25) };
+}
+
 async function webPhoto(id, name, widths) {
-  const source = sharp(path.join(root, 'assets/photos', `${id}.jpg`));
-  const { width, height } = await source.metadata();
-  const cropH = Math.round(width * 1.25);
-  const crop = { left: 0, top: Math.round(height * 0.03), width, height: cropH };
+  const crop = await crop45(id);
   for (const w of widths) {
     const resized = () => sharp(path.join(root, 'assets/photos', `${id}.jpg`)).extract(crop).resize(w);
     await resized().avif({ quality: 52, effort: 6 }).toFile(path.join(photoDir, `photo-${name}-${w}.avif`));
@@ -107,7 +110,14 @@ async function webPhoto(id, name, widths) {
 }
 
 for (const [key, ev] of Object.entries(EVENTS)) {
-  await webPhoto(ev.photos.backdrop, `${key}-backdrop`, [720, 1080, 1440]);
+  // Only its light and shade are used, so grayscale WebP: ~20 KB, and every phone can show it.
+  await sharp(path.join(root, 'assets/photos', `${ev.photos.petal}.jpg`))
+    .extract(await crop45(ev.photos.petal))
+    .resize(960)
+    .grayscale()
+    .linear(1.18, -18) // a touch more contrast: the petal's texture softens it again
+    .webp({ quality: 70 })
+    .toFile(path.join(photoDir, `photo-${key}-petal.webp`));
   await webPhoto(ev.photos.keepsake, `${key}-keepsake`, [480, 960]);
 }
 console.log('wrote icons, og/ previews and src/photos/');

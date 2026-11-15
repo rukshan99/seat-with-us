@@ -67,7 +67,7 @@ let uid = 0;
  *   curl     [from, to] range along the edge (-1…1) that folds back as a lighter lip
  *   tone     'back' petals sit deeper in shadow than 'front' ones
  */
-function petal({ base, dir, spread, R, k, amp, twist = 0.08, curl, seed, tone = 'front', veins = 80, lean = 0, bend = 0 }) {
+function petal({ base, dir, spread, R, k, amp, twist = 0.08, curl, seed, tone = 'front', veins = 80, lean = 0, bend = 0, photo = false }) {
   const rnd = mulberry32(seed);
   const id = `p${++uid}`;
   const ph = rnd() * Math.PI * 2;
@@ -107,7 +107,12 @@ function petal({ base, dir, spread, R, k, amp, twist = 0.08, curl, seed, tone = 
       `<stop offset="1" class="p-rim" stop-opacity=".2"/></radialGradient>`,
   );
 
-  parts.push(`<path d="${outline}" fill="url(#${id}g)"/>`);
+  // A petal can carry a photo, filled in per page by vite/template.js. It sits in an
+  // isolated group with the petal's own colour so it can borrow that colour (the
+  // blend never reaches the page behind), and under the pleats and veins so the
+  // texture runs across it like a print on silk.
+  const fill = `<path d="${outline}" fill="url(#${id}g)"/>`;
+  parts.push(photo ? `<g class="petal-print">${fill}<!--petal-photo:${id}c--></g>` : fill);
 
   // Pleats: dark wedges in the ruffle valleys, light wedges on the ridges.
   const valleys = [];
@@ -128,8 +133,8 @@ function petal({ base, dir, spread, R, k, amp, twist = 0.08, curl, seed, tone = 
   const wedge = (u) =>
     `M${pt(base)}L${pt(edge(u - halfWidth, 1.15))}L${pt(edge(u, 1.2))}L${pt(edge(u + halfWidth, 1.15))}Z`;
   parts.push(`<g clip-path="url(#${id}c)">`);
-  parts.push(`<path d="${valleys.map(wedge).join('')}" fill="url(#${id}s)"/>`);
-  parts.push(`<path d="${ridges.map(wedge).join('')}" fill="url(#${id}h)"/>`);
+  parts.push(`<path d="${valleys.map(wedge).join('')}" fill="url(#${id}s)" class="p-pleats"/>`);
+  parts.push(`<path d="${ridges.map(wedge).join('')}" fill="url(#${id}h)" class="p-pleats"/>`);
 
   // Veins: fine lines from near the base to the edge, sweeping slightly.
   const light = [];
@@ -176,7 +181,7 @@ function petal({ base, dir, spread, R, k, amp, twist = 0.08, curl, seed, tone = 
 
   return {
     defs: defs.join(''),
-    body: `<g class="petal petal--${tone}">${parts.join('')}</g>`,
+    body: `<g class="petal petal--${tone}${photo ? ' petal--print' : ''}">${parts.join('')}</g>`,
     shadow: `<path d="${outline}"/>`,
     base,
   };
@@ -189,7 +194,7 @@ const H = 800;
 
 const PETALS = [
   { base: [640, -70], dir: 166, spread: 27, R: 390, k: 4, amp: 0.035, seed: 11, tone: 'back', veins: 60, lean: 0.12, bend: 0.06 },
-  { base: [660, 10], dir: 146, spread: 36, R: 500, k: 5, amp: 0.045, seed: 7, curl: [-0.4, 0.45], veins: 96, lean: -0.1, bend: 0.1 },
+  { base: [660, 10], dir: 146, spread: 36, R: 500, k: 5, amp: 0.045, seed: 7, curl: [-0.4, 0.45], veins: 96, lean: -0.1, bend: 0.1, photo: true },
   { base: [690, 350], dir: 121, spread: 28, R: 400, k: 4, amp: 0.05, seed: 23, twist: -0.1, curl: [0.05, 0.8], veins: 76, lean: 0.15, bend: -0.08 },
 ];
 
@@ -198,7 +203,7 @@ const shadowFilter = (id) =>
 
 /** One flat SVG, used for still images (link previews, print signs). */
 function petalsStill() {
-  const list = PETALS.map(petal);
+  const list = PETALS.map((spec) => petal({ ...spec, photo: false }));
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="petals-art" aria-hidden="true" focusable="false">` +
     `<defs>${shadowFilter('ps')}${list.map((p) => p.defs).join('')}</defs>` +

@@ -16,6 +16,31 @@ const esc = (s) =>
 /** The script "and", reused between names and on the back of the escort card. */
 const andMark = (cls) => art('and.svg').replace('class="and-mark"', `class="and-mark ${cls}"`);
 
+/**
+ * The layered petals, with this event's photo printed on the large petal.
+ * The photo box is in petal-drawing units (600 × 800); its top-left corner and
+ * width are set per event in src/events.js so the couple's faces land on the
+ * visible part of the petal.
+ */
+const petals = (ev) =>
+  art('petals.html').replace(/<!--petal-photo:(\w+)-->/, (_, clip) => {
+    const [x, y, w] = ev.photos.petalBox;
+    const [fx, fy] = ev.photos.petalFaces;
+    // A soft radial mask centred on the faces: the photo emerges from the petal
+    // and fades into its plain texture, so there are no hard photo edges.
+    return (
+      `<radialGradient id="petal-photo-fade" cx="${fx}" cy="${fy}" r="0.62">` +
+      `<stop offset="0.35" stop-color="#fff"/><stop offset="1" stop-color="#000"/></radialGradient>` +
+      `<mask id="petal-photo-mask" maskContentUnits="objectBoundingBox">` +
+      `<rect width="1" height="1" fill="url(#petal-photo-fade)"/></mask>` +
+      // The blend sits on the clipped group: a clip makes its own isolated group,
+      // so a blend set on the image inside would only mix with empty space.
+      `<g class="petal-photo-tone" clip-path="url(#${clip})"><image class="petal-photo" href="/src/photos/photo-${ev.key}-petal.webp" ` +
+      `x="${x}" y="${y}" width="${w}" height="${w * 1.25}" preserveAspectRatio="xMidYMid slice" ` +
+      `mask="url(#petal-photo-mask)"/></g>`
+    );
+  });
+
 const closeIcon =
   '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">' +
   '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
@@ -52,12 +77,8 @@ export function head(ev, base) {
 const srcset = (name, widths, ext) =>
   widths.map((w) => `/src/photos/photo-${name}-${w}.${ext} ${w}w`).join(', ');
 
-/** 1×1 transparent GIF: what phones load instead of the desktop-only backdrop. */
-const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
-
 export function body(ev, base) {
   const [first, second] = ev.names;
-  const bd = [720, 1080, 1440];
   const ks = [480, 960];
   const ksSizes = '(min-width: 720px) 16rem, 72vw';
   const other = EVENTS[ev.key === 'wedding' ? 'homecoming' : 'wedding'];
@@ -65,13 +86,8 @@ export function body(ev, base) {
 
   return `
   <div class="frame">
-    <picture class="backdrop" style="--backdrop-focus: ${ev.photos.backdropFocus}">
-      <source media="(min-width: 1100px)" type="image/avif" sizes="50vw" srcset="${srcset(`${ev.key}-backdrop`, bd, 'avif')}">
-      <source media="(min-width: 1100px)" type="image/jpeg" sizes="50vw" srcset="${srcset(`${ev.key}-backdrop`, bd, 'jpg')}">
-      <img src="${BLANK}" alt="${esc(ev.photos.alt)}" width="1440" height="1800" decoding="async">
-    </picture>
     <main class="card">
-      <div class="petals" aria-hidden="true">${art('petals.html')}</div>
+      <div class="petals" aria-hidden="true">${petals(ev)}</div>
 
       <header class="hero">
         <p class="eyebrow">${esc(ev.eyebrow)}</p>

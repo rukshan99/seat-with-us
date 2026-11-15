@@ -195,48 +195,6 @@ button {
   }
 }
 
-/* Desktop: the engagement photo fills the left half, the card sits on the right.
-   (These portrait photos fit a half-screen panel with almost no cropping.) */
-.backdrop {
-  display: none;
-}
-
-@media (min-width: 1100px) {
-  .frame {
-    display: grid;
-    grid-template-columns: 1fr minmax(36rem, 1fr);
-    align-items: start;
-    padding: 0;
-  }
-  .backdrop {
-    position: sticky;
-    top: 0;
-    display: block;
-    height: 100dvh;
-    overflow: hidden;
-  }
-  .backdrop img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: var(--backdrop-focus, 50% 70%);
-  }
-  /* Let the photo dissolve into the surround instead of ending in a hard edge. */
-  .backdrop::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to right, transparent 70%, var(--surround));
-    pointer-events: none;
-  }
-  .card {
-    justify-self: center;
-    align-self: center;
-    margin: 4dvh 24px;
-  }
-}
-
 /* ---------- Petals ---------- */
 
 .petals {
@@ -253,6 +211,31 @@ button {
   position: relative;
   width: 100%;
   aspect-ratio: 600 / 800;
+}
+
+/* A photo printed on the large petal. "luminosity" keeps the photo's light and
+   shade but takes the petal's colour, so the same picture reads as an olive
+   duotone at the wedding and a rose one at the homecoming. The group is
+   isolated so the blend only ever mixes with the petal, never the page. */
+.petal-print {
+  isolation: isolate;
+}
+
+.petal-photo-tone {
+  mix-blend-mode: luminosity;
+  opacity: 0.9;
+}
+
+/* On the petal that carries the photo, the texture whispers instead of cutting
+   across the faces. */
+.petal--print .p-pleats {
+  opacity: 0.4;
+}
+.petal--print .p-vein {
+  stroke-opacity: 0.16;
+}
+.petal--print .p-vein-dark {
+  stroke-opacity: 0.1;
 }
 
 /* Each petal is its own layer, pivoting on its base (see scripts/make-art.mjs). */
@@ -728,6 +711,15 @@ button {
   transform: translate(-18%, -8%) scale(0.38);
 }
 
+/* Tiny faces in a corner just look busy: the photo steps back while the page is
+   compact (typing, result), and the keepsake print takes over on the result. */
+.petal-photo-tone {
+  transition: opacity 500ms var(--ease);
+}
+.is-compact .petal-photo-tone {
+  opacity: 0;
+}
+
 /* A remembered result is restored by script; hide the search until then. */
 .is-remembered:not(.is-ready) .hero,
 .is-remembered:not(.is-ready) .finder {
@@ -765,6 +757,14 @@ button {
     --wind: 2.4deg;
     --wind-time: 13s;
     --wind-delay: -7s;
+  }
+
+  /* The print develops slowly once it has arrived, like a photograph. */
+  .petal-photo {
+    transition: opacity 2200ms cubic-bezier(0.3, 0.1, 0.3, 1);
+  }
+  .petal-photo:not(.is-developed) {
+    opacity: 0;
   }
 
   .matches:not([hidden]) {

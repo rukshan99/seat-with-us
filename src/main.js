@@ -392,6 +392,16 @@ el.input.addEventListener('blur', () => {
 
 el.again.addEventListener('click', () => searchAgain());
 
+// Let the photo on the petal "develop" once it has arrived. Decoding a copy is
+// reliable even if the image finished loading before this script ran.
+const petalPhoto = $('.petal-photo');
+if (petalPhoto) {
+  const develop = () => petalPhoto.classList.add('is-developed');
+  const copy = new Image();
+  copy.src = petalPhoto.href.baseVal;
+  copy.decode().then(develop, develop);
+}
+
 // Fade the keepsake photo in once it has actually arrived (it loads lazily).
 const keepsake = $('.keepsake__img');
 const keepsakeLoaded = () => keepsake.classList.add('is-loaded');
