@@ -156,3 +156,9 @@ scripts/           guest import, artwork, icons, QR codes
 tests/             name matching and QR tests
 docs/              design brief, research, invitation references
 ```
+
+## Copyright
+
+© 2026 Rukshan Jayasekara. **All rights reserved.** This repository is public so the site can be hosted on GitHub Pages, but it is published for viewing only. The code, artwork and design may not be copied or reused without written permission. See [`LICENSE`](LICENSE).
+
+The engagement photographs, guest data and invitation designs belong to their respective owners. The fonts (Cormorant Garamond, Jost, Pinyon Script) are by their authors under the SIL Open Font License 1.1.

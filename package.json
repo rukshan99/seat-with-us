@@ -1,6 +1,7 @@
 {
   "name": "seat-with-us",
   "private": true,
+  "license": "UNLICENSED",
   "version": "1.0.0",
   "description": "Find your table at Ashinsana & Pasindu's wedding and homecoming.",
   "type": "module",

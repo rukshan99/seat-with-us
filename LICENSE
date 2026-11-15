@@ -1,0 +1,35 @@
+Copyright (c) 2026 Rukshan Jayasekara. All rights reserved.
+
+This repository is published for viewing only. No licence is granted to copy,
+modify, distribute, sublicense, host, or otherwise reuse any part of it,
+including the source code, the generated artwork, the design and the
+documentation, in whole or in part, without prior written permission from the
+copyright holder.
+
+Being able to view this repository, or to fork it within GitHub as GitHub's
+Terms of Service allow, does not grant any right to use its contents.
+
+The following also remain the property of their respective owners and are not
+covered by any permission above:
+
+  - Engagement photographs, and every image derived from them:
+      assets/photos/, src/photos/, public/og/
+  - Guest list data (personal information about real people): src/data/
+  - Wedding invitation designs used as a design reference: docs/reference/
+  - Screenshots of third-party websites used for design research:
+      docs/inspiration/
+
+-------------------------------------------------------------------------------
+
+THIRD-PARTY FONTS
+
+The site self-hosts these typefaces. They are not owned by the copyright holder
+above and remain licensed by their authors under the SIL Open Font License,
+Version 1.1 (https://openfontlicense.org):
+
+  - Cormorant Garamond: Copyright 2015 The Cormorant Project Authors
+    (https://github.com/CatharsisFonts/Cormorant)
+  - Jost: Copyright 2020 The Jost Project Authors
+    (https://github.com/indestructible-type/Jost)
+  - Pinyon Script (letterforms of the "and" mark): Copyright 2022 The
+    PinyonScript Project Authors (https://github.com/SorkinType/Pinyon)
