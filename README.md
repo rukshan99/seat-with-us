@@ -29,7 +29,7 @@ The seating plan lives in the planning spreadsheet. The site reads two generated
    It prints a summary, for example `wedding  343 parties, 545 guests, 62 with a table`.
 3. Check the result locally (see below), then commit and push the two JSON files. The site updates itself within a couple of minutes.
 
-**What gets published:** the party name, the note in brackets, the group, the party size and the table. Quantities, drinks and invitation counts are not. **Everything in the name column is public**, so write each name the way the guest would want to see it. The spreadsheet itself is never committed (`*.xlsx` is git-ignored).
+**What gets published:** the party name, the note in brackets, the party size and the table. Quantities, drinks and invitation counts are not. **Everything in the name column is public**, so write each name the way the guest would want to see it. The spreadsheet itself is never committed (`*.xlsx` is git-ignored).
 
 **How the spreadsheet is read:**
 
@@ -39,7 +39,7 @@ The seating plan lives in the planning spreadsheet. The site reads two generated
 | `Hichchi Ayya (Ranjith)` | **Hichchi Ayya**, with *Ranjith* shown underneath. Searching "Ranjith" finds them. |
 | Quantity `0` | Left out (declined). |
 | Empty table number | "Your seat is being arranged. An usher at the entrance will walk you to it." |
-| Group heading, e.g. `Pasindu's Guests` | Shown as *Pasindu's friends* under the name, to tell apart two people with the same name. The friendly labels are in `GROUP_LABELS` in `scripts/import-guests.mjs`. |
+| Group heading, e.g. `Pasindu's Guests` | Not shown or published. Only used to keep each party's id stable between updates. |
 
 Guests who looked themselves up earlier see their card again when they reopen the page. If their table changes in a later update, the card updates automatically.
 

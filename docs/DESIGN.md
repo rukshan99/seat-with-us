@@ -115,7 +115,7 @@ The input is **not** focused automatically on phones. That would open the keyboa
 │ ASHINSANA     ╭╯     │        │└────────────────────┘│        ││    KASUN PERERA    ││
 │   and                │        │  Kasun Perera        │        ││ ·················· ││ ← fold
 │ PASINDU              │        │  Kasun Perera        │        ││       TABLE        ││
-│                      │        │   Mahesh's guests · 2│        ││                    ││
+│                      │        │   party of two       │        ││                    ││
 │ FIND YOUR TABLE      │        │  Kasuni Karunarathne │        ││         4          ││
 │┌────────────────────┐│        │░░░░░░░░░░░░░░░░░░░░░░│        ││                    ││
 ││ Your name          ││        │░░░░░ keyboard ░░░░░░░│        ││   Party of two     ││
@@ -124,7 +124,7 @@ The input is **not** focused automatically on phones. That would open the keyboa
 └──────────────────────┘        └──────────────────────┘        └──────────────────────┘
 ```
 
-Touch targets are at least 48 px everywhere. The input is 60 px tall and each suggestion row 56 px. Suggestion rows also show a quiet second line when two people share a name, for example "Mahesh's guests · party of 2", so guests can tell the two Kasuns apart without guessing.
+Touch targets are at least 48 px everywhere. The input is 60 px tall and each suggestion row 56 px. Suggestion rows show a quiet second line with the note from the guest list and the party size, for example "Wadduwa · party of two". That's enough to tell the two Swarna Akkas apart without guessing. Groups such as "Pasindu's guests" are deliberately left out: they're planning labels, not something a guest should read about themselves.
 
 ## 7. Signature: the escort card
 
@@ -172,7 +172,7 @@ The tone is warm, short and specific. Errors don't apologise or stay vague.
 - **Performance target:** HTML, CSS and JS under 30 KB compressed. Fonts about 60 KB. Petal artwork about 25 KB (AVIF/WebP). **Under 120 KB on first load**, with no framework.
 - **Stack:** Vite builds plain HTML, CSS and JS into two pages. It handles the `/seat-with-us/` base path, adds content hashes to file names, minifies, and runs the font and image pipeline. React or similar isn't worth its 40 KB+ for one input and one card.
 - **Guest data:** built into the JS file, so there's no second download before search works. A script converts your spreadsheet into JSON.
-- **Privacy:** only the display name, the note in brackets (needed to tell apart two guests with the same name, e.g. "Swarna Akka (Wadduwa)"), the group, the table and the party size are published. Quantities, drinks and invitation counts are not. **Everything in the spreadsheet's name column is public**, so it should read the way a guest would want to see it. Guest names never appear in the page's HTML. They live in a data file loaded by script, so search engines have nothing to index. *(We considered `noindex`, but it would fail Lighthouse's SEO audit, and here it would protect nothing the design doesn't already.)*
+- **Privacy:** only the display name, the note in brackets (needed to tell apart two guests with the same name, e.g. "Swarna Akka (Wadduwa)"), the table and the party size are published. The spreadsheet's group headings ("Pasindu's guests" and so on) are not shown or published. Quantities, drinks and invitation counts are not. **Everything in the spreadsheet's name column is public**, so it should read the way a guest would want to see it. Guest names never appear in the page's HTML. They live in a data file loaded by script, so search engines have nothing to index. *(We considered `noindex`, but it would fail Lighthouse's SEO audit, and here it would protect nothing the design doesn't already.)*
 - **Offline:** a small service worker stores the page after the first visit. A guest who opened the link at home can still find their table on weak resort signal. Pages always try the network first (giving up after 3 s), so an updated guest list reaches everyone who has signal.
 
 ## 12. Self-critique: what I changed after checking against generic defaults

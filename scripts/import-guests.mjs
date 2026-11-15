@@ -11,7 +11,8 @@
  *     table number in whichever column the header row labels "Table No."
  *   - Subtotal rows are ignored.
  *
- * Only the name, bracketed hint, group, party size and table are written.
+ * Only the name, bracketed hint, party size and table are written. The group
+ * heading is used only to keep ids stable; it is not published.
  * Rows with quantity 0 (declined) are skipped.
  */
 import readXlsxFile from 'read-excel-file/node';
@@ -20,20 +21,6 @@ import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const SHEETS = { WEDDING: 'wedding', HOMECOMING: 'homecoming' };
-
-/** Spreadsheet group names → how a guest would describe themselves. */
-const GROUP_LABELS = {
-  'relations': 'Family',
-  'friends': 'Family friends',
-  'neighbours': 'Neighbours',
-  "nirosha's friends": "Nirosha's friends",
-  "chethana's friends": "Chethana's friends",
-  "pasindu's guests": "Pasindu's friends",
-  "ashinsana's friends": "Ashinsana's friends",
-  "ashinsana's mother guests": "Ashinsana's mother's guests",
-  "ashinsana's brother friends": "Ashinsana's brother's friends",
-  "mahesh's guests": "Mahesh's guests",
-};
 
 const clean = (v) => String(v ?? '').replace(/\s+/g, ' ').trim();
 const isNumberLike = (v) => v !== null && v !== '' && !Number.isNaN(Number(v));
@@ -57,12 +44,6 @@ function stableId(...parts) {
     h = Math.imul(h, 0x01000193) >>> 0;
   }
   return h.toString(36);
-}
-
-function friendlyGroup(raw) {
-  const key = clean(raw).toLowerCase();
-  if (GROUP_LABELS[key]) return GROUP_LABELS[key];
-  return clean(raw);
 }
 
 export function parseSheet(rows, eventKey) {
@@ -92,7 +73,6 @@ export function parseSheet(rows, eventKey) {
     const { name, hint } = splitName(b);
     if (!name) continue;
     const tableRaw = tableCol >= 0 ? clean(cells[tableCol]) : '';
-    const groupLabel = group ? friendlyGroup(group) : undefined;
 
     let id = stableId(eventKey, group, b);
     const n = (seen.get(id) ?? 0) + 1;
@@ -103,7 +83,6 @@ export function parseSheet(rows, eventKey) {
       id,
       name,
       ...(hint && { hint }),
-      ...(groupLabel && { group: groupLabel }),
       ...(party && { party }),
       table: tableRaw || null,
     });

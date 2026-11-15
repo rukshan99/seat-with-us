@@ -6,8 +6,8 @@ import { normalize, fold, editDistance, buildIndex, search } from '../src/search
 const load = (name) => JSON.parse(readFileSync(new URL(`../src/data/${name}.json`, import.meta.url)));
 
 const guests = [
-  { id: '1', name: 'Kasun Perera', group: "Pasindu's friends", table: '3' },
-  { id: '2', name: 'Kasun Perera', group: "Mahesh's guests", party: 2, table: '7' },
+  { id: '1', name: 'Kasun Perera', table: '3' },
+  { id: '2', name: 'Kasun Perera', party: 2, table: '7' },
   { id: '3', name: 'Kasuni Karunarathne', table: '4' },
   { id: '4', name: 'Parakkarama & Achini', table: '1' },
   { id: '5', name: 'Hichchi Ayya', hint: 'Ranjith', table: '1' },
