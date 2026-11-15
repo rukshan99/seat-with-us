@@ -124,20 +124,18 @@ All of them run in plain Node, with no browser or design tools needed.
 
 ### Photos
 
-Each event uses three engagement photos, chosen in `src/events.js` under `photos`:
+Each event uses up to three engagement photos, chosen in `src/events.js` under `photos`:
 
 | Key | Where it appears |
 |---|---|
 | `preview` | The link preview when the URL is shared on WhatsApp or iMessage |
-| `backdrop` | The left half of the screen on desktop. `backdropFocus` sets which part stays in view. Phones never download it. |
+| `petal` | Printed on the large petal on the landing page, toned to the theme (olive at the wedding, rose at the homecoming). `petalBox` places it on the petal and `petalFaces` says where the faces are, so they stay in the soft focus. |
 | `keepsake` | The small print under the result card, captioned "Thank you for celebrating with us". It loads only once a result is shown. |
 
 The sources are `assets/photos/<id>.jpg`, 1800 px copies of the shoot. To use a different photo:
 1. Add its 1800 px copy to `assets/photos/`.
 2. Put its id in `src/events.js`.
 3. Run `npm run images`.
-
-The page photos are cropped to 4:5 and exported as AVIF with a JPEG fallback, at several sizes so each screen downloads only what it needs.
 
 ## Project layout
 
