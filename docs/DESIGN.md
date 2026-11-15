@@ -139,6 +139,8 @@ The card hinges open from a dotted fold line (rotating from about 75° to flat, 
 ## 8. Motion principles
 
 1. **Content is never animated into view.** Text is readable the moment it paints. Only the petals drift in, about 800 ms after first paint, and they never hold anything up.
+   - **A small wind** (added after launch at the couple's request): each petal sways around its base on its own slow, uneven cycle (8.5–13 s, 1.4–2.4°), so the three never move in step. Each petal is a separate layer that the GPU rotates as a finished image, so nothing is redrawn and Lighthouse reports no non-composited animations. It's turned off for reduced motion.
+   - **Never move an input while it gains focus.** Phones pan to wherever the field is at that instant. Compact mode therefore applies synchronously inside the tap, and only fades and settles.
 2. **Three durations:** 150 ms for small feedback (focus, press), 250 ms for the suggestions list, and 600–900 ms only for the card reveal, which happens once.
 3. **One easing curve:** `cubic-bezier(0.2, 0.8, 0.2, 1)`, a strong ease-out. Nothing bounces, because bouncing looks like a toy, not a wedding.
 4. **Reduced motion:** if the phone is set to reduce motion, every transform becomes a 150 ms fade. The reveal still feels like a moment, just without movement.
