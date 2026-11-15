@@ -76,6 +76,8 @@ async function walk(dir) {
 
 /**
  * Writes dist/sw.js after the build with the list of files to keep offline.
+ * Photos are left out of the up-front download (a phone only ever shows one
+ * size and format); each is kept the first time it is viewed.
  * The cache version is a hash of every file, so any change ships a new worker.
  */
 export function serviceWorker() {
@@ -89,7 +91,7 @@ export function serviceWorker() {
     async closeBundle() {
       const files = (await walk(outDir))
         .map((f) => path.relative(outDir, f).split(path.sep).join('/'))
-        .filter((f) => !/^(sw\.js|qr\/|og\/|print\/|robots\.txt|.*\.map$)/.test(f))
+        .filter((f) => !/^(sw\.js|qr\/|og\/|print\/|robots\.txt|assets\/photo-|.*\.map$)/.test(f))
         .sort();
       const hash = createHash('sha256');
       for (const f of files) hash.update(f).update(await readFile(path.join(outDir, f)));

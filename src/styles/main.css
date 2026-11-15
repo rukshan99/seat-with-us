@@ -195,6 +195,48 @@ button {
   }
 }
 
+/* Desktop: the engagement photo fills the left half, the card sits on the right.
+   (These portrait photos fit a half-screen panel with almost no cropping.) */
+.backdrop {
+  display: none;
+}
+
+@media (min-width: 1100px) {
+  .frame {
+    display: grid;
+    grid-template-columns: 1fr minmax(36rem, 1fr);
+    align-items: start;
+    padding: 0;
+  }
+  .backdrop {
+    position: sticky;
+    top: 0;
+    display: block;
+    height: 100dvh;
+    overflow: hidden;
+  }
+  .backdrop img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: var(--backdrop-focus, 50% 70%);
+  }
+  /* Let the photo dissolve into the surround instead of ending in a hard edge. */
+  .backdrop::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent 70%, var(--surround));
+    pointer-events: none;
+  }
+  .card {
+    justify-self: center;
+    align-self: center;
+    margin: 4dvh 24px;
+  }
+}
+
 /* ---------- Petals ---------- */
 
 .petals {
@@ -573,6 +615,36 @@ button {
   text-underline-offset: 0.6em;
 }
 
+/* The keepsake: a small print below the card, a thank-you once the job is done. */
+.keepsake {
+  width: min(76%, 16rem);
+  margin: 40px 0 8px;
+  padding: 10px 10px 0;
+  background: var(--surface);
+  border-radius: 2px;
+  box-shadow:
+    0 1px 2px rgb(var(--shadow-rgb) / 0.14),
+    0 20px 34px -20px rgb(var(--shadow-rgb) / 0.5);
+  transform: rotate(-2deg);
+}
+
+.keepsake__img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 4 / 5;
+  background: var(--wash);
+}
+
+.keepsake__caption {
+  padding: 14px 4px 16px;
+  font: 500 11px/1.45 var(--font-sans);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--muted);
+}
+
 /* ---------- Footer: the other event ---------- */
 
 .other {
@@ -693,6 +765,17 @@ button {
   .result.is-revealing .again {
     animation: fade-in 400ms var(--ease) 1000ms both;
   }
+  .result.is-revealing .keepsake {
+    animation: keepsake-in 700ms var(--ease) 1150ms both;
+  }
+  /* The photo itself fades in when it arrives, rather than popping in. */
+  .keepsake__img {
+    opacity: 0;
+    transition: opacity 600ms var(--ease);
+  }
+  .keepsake__img.is-loaded {
+    opacity: 1;
+  }
 
   ::view-transition-group(*) {
     animation-duration: 320ms;
@@ -740,6 +823,13 @@ button {
 @keyframes escort-open {
   from {
     transform: rotateX(180deg);
+  }
+}
+
+@keyframes keepsake-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px) rotate(-5deg);
   }
 }
 

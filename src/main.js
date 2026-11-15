@@ -346,6 +346,12 @@ el.input.addEventListener('blur', () => {
 
 el.again.addEventListener('click', () => searchAgain());
 
+// Fade the keepsake photo in once it has actually arrived (it loads lazily).
+const keepsake = $('.keepsake__img');
+const keepsakeLoaded = () => keepsake.classList.add('is-loaded');
+if (keepsake.complete && keepsake.naturalWidth) keepsakeLoaded();
+else keepsake.addEventListener('load', keepsakeLoaded, { once: true });
+
 /* ---------- Start ---------- */
 
 const remembered = storage.read();

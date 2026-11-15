@@ -48,13 +48,28 @@ export function head(ev, base) {
     <script>(function(h){try{localStorage.getItem('seat-with-us:${ev.key}')&&h.classList.add('is-remembered')}catch(e){}setTimeout(function(){h.classList.add('is-ready')},2500)})(document.documentElement)</script>`;
 }
 
+/** A responsive <img> srcset for one generated photo (see scripts/make-images.mjs). */
+const srcset = (name, widths, ext) =>
+  widths.map((w) => `/src/photos/photo-${name}-${w}.${ext} ${w}w`).join(', ');
+
+/** 1×1 transparent GIF: what phones load instead of the desktop-only backdrop. */
+const BLANK = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+
 export function body(ev, base) {
   const [first, second] = ev.names;
+  const bd = [720, 1080, 1440];
+  const ks = [480, 960];
+  const ksSizes = '(min-width: 720px) 16rem, 72vw';
   const other = EVENTS[ev.key === 'wedding' ? 'homecoming' : 'wedding'];
   const otherDay = other.dateLabel.split(', ')[1];
 
   return `
   <div class="frame">
+    <picture class="backdrop" style="--backdrop-focus: ${ev.photos.backdropFocus}">
+      <source media="(min-width: 1100px)" type="image/avif" sizes="50vw" srcset="${srcset(`${ev.key}-backdrop`, bd, 'avif')}">
+      <source media="(min-width: 1100px)" type="image/jpeg" sizes="50vw" srcset="${srcset(`${ev.key}-backdrop`, bd, 'jpg')}">
+      <img src="${BLANK}" alt="${esc(ev.photos.alt)}" width="1440" height="1800" decoding="async">
+    </picture>
     <main class="card">
       <div class="petals" aria-hidden="true">${art('petals.svg')}</div>
 
@@ -109,6 +124,14 @@ export function body(ev, base) {
           </div>
         </div>
         <button class="again" type="button">Search another name</button>
+        <figure class="keepsake">
+          <picture>
+            <source type="image/avif" sizes="${ksSizes}" srcset="${srcset(`${ev.key}-keepsake`, ks, 'avif')}">
+            <img class="keepsake__img" src="/src/photos/photo-${ev.key}-keepsake-480.jpg" srcset="${srcset(`${ev.key}-keepsake`, ks, 'jpg')}"
+              sizes="${ksSizes}" alt="${esc(ev.photos.keepsakeAlt)}" width="480" height="600" loading="lazy" decoding="async">
+          </picture>
+          <figcaption class="keepsake__caption">Thank you for celebrating with us</figcaption>
+        </figure>
       </section>
 
       <nav class="other" aria-label="Other event">
