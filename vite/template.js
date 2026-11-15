@@ -41,6 +41,31 @@ const petals = (ev) =>
     );
   });
 
+/**
+ * Light that matches each event's hour. The wedding reception is at 11 AM by
+ * the sea: soft palm-frond shadows drift across the card. The homecoming is in
+ * the evening: a few warm fairy-light glows breathe in the background, kept to
+ * the edges, away from the text.
+ */
+const GLOWS = [
+  // left %, top %, size px, breathing seconds, delay seconds
+  [90, 5, 120, 7, 0],
+  [70, 24, 50, 5.5, -2],
+  [96, 42, 84, 8, -4],
+  [84, 63, 44, 6, -1],
+  [92, 86, 110, 9, -3],
+  [10, 95, 96, 7.5, -5],
+  [38, 100, 70, 6.5, -2.5],
+  [5, 7, 58, 8.5, -6],
+];
+const ambience = (ev) =>
+  ev.key === 'wedding'
+    ? `<div class="ambience ambience--day" aria-hidden="true">${art('palms.svg')}</div>`
+    : `<div class="ambience ambience--evening" aria-hidden="true">${GLOWS.map(
+        ([x, y, size, t, delay]) =>
+          `<span class="glow" style="left:${x}%;top:${y}%;--size:${size}px;--t:${t}s;--delay:${delay}s"></span>`,
+      ).join('')}</div>`;
+
 const closeIcon =
   '<svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">' +
   '<path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
@@ -86,6 +111,9 @@ export function body(ev, base) {
   <div class="frame">
     <main class="card">
       <div class="petals" aria-hidden="true">${petals(ev)}</div>
+      ${ambience(ev)}
+      <div class="drift" aria-hidden="true"></div>
+      ${art('petal-loose.html')}
 
       <header class="hero">
         <p class="eyebrow">${esc(ev.eyebrow)}</p>

@@ -248,6 +248,47 @@ function fillCard(guest) {
   el.party.hidden = !party;
 }
 
+/**
+ * The wind picks up as the card opens: a gust through the petals (CSS, via
+ * .is-gust) and three petals that break free and drift down past the card.
+ * Positions are fractions of the card's visible area, so the flight paths fit
+ * any screen. Nothing happens for people who prefer reduced motion.
+ */
+const DRIFTS = [
+  // start x, start y (px), end x, end y (fractions), size px, seconds, delay s, spin deg
+  { x0: 0.78, y0: 40, x1: 0.3, y1: 0.66, size: 46, dur: 4.8, delay: 0.5, spin: 38 },
+  { x0: 0.9, y0: 100, x1: 0.62, y1: 0.8, size: 36, dur: 5.4, delay: 0.85, spin: -46 },
+  { x0: 0.7, y0: 12, x1: 0.06, y1: 0.74, size: 42, dur: 6, delay: 1.3, spin: 30 },
+];
+const LOOSE_VIEWBOX = '0 30 480 420'; // matches scripts/make-art.mjs
+
+function celebrate() {
+  if (reducedMotion.matches) return;
+  html.classList.remove('is-gust');
+  void html.offsetWidth;
+  html.classList.add('is-gust');
+  setTimeout(() => html.classList.remove('is-gust'), 3000);
+
+  const drift = $('.drift');
+  const width = drift.clientWidth;
+  const height = Math.min(drift.clientHeight, window.innerHeight);
+  drift.replaceChildren(
+    ...DRIFTS.map((d) => {
+      const petal = document.createElement('span');
+      petal.className = 'drift__petal';
+      petal.style.cssText =
+        `--x0:${Math.round(d.x0 * width)}px;--y0:${d.y0}px;` +
+        `--x1:${Math.round(d.x1 * width)}px;--y1:${Math.round(d.y1 * height)}px;` +
+        `--size:${d.size}px;--dur:${d.dur}s;--delay:${d.delay}s;--spin:${d.spin}deg`;
+      petal.innerHTML = `<span class="drift__sway"><svg viewBox="${LOOSE_VIEWBOX}"><use href="#loose-petal"/></svg></span>`;
+      return petal;
+    }),
+  );
+  // Tidy up once the last one has landed.
+  const longest = Math.max(...DRIFTS.map((d) => d.dur + d.delay));
+  setTimeout(() => drift.replaceChildren(), longest * 1000 + 200);
+}
+
 function showResult(guest, { animate, remembered = false }) {
   fillCard(guest);
   el.again.textContent = remembered ? 'Not you? Search another name' : 'Search another name';
@@ -260,6 +301,7 @@ function showResult(guest, { animate, remembered = false }) {
     if (animate) {
       void el.result.offsetWidth; // restart the animation
       el.result.classList.add('is-revealing');
+      celebrate();
     }
     // Focus only once the card is actually shown (a view transition applies this later).
     window.scrollTo({ top: 0 });

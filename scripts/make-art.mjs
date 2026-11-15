@@ -3,6 +3,8 @@
  * Generates the site's original artwork as SVG:
  *   src/art/petals.svg   ruffled fan petals with pleats, veins and a curled lip (still images)
  *   src/art/petals.html  the same petals as separate layers, so each can sway on the page
+ *   src/art/petal-loose.html  one small petal, drifting down when a table is found
+ *   src/art/palms.svg    soft palm-frond shadows for the wedding page
  *   src/art/and.svg     the script "and" between the couple's names, as a path
  *
  *   npm run art
@@ -235,6 +237,71 @@ function petalsLayered() {
   return `<div class="petals-art">${layers.join('')}</div>\n`;
 }
 
+/* ---------- loose petal (drifts down when a guest finds their table) ---------- */
+
+/**
+ * One small petal from the same generator, drawn at full scale so every stroke
+ * keeps its proportions when shown tiny. Defined once in a hidden <svg>; each
+ * drifting petal is just <use href="#loose-petal">, so no ids are duplicated.
+ */
+function loosePetal() {
+  const p = petal({ base: [240, 440], dir: -90, spread: 36, R: 380, k: 3, amp: 0.05, seed: 31, veins: 40, curl: [-0.3, 0.4], twist: 0.06 });
+  return (
+    `<svg class="loose-defs" width="0" height="0" aria-hidden="true" focusable="false">` +
+    `<defs>${p.defs}<g id="loose-petal">${p.body}</g></defs></svg>\n`
+  );
+}
+const LOOSE_VIEWBOX = '0 30 480 420'; // also used in vite/template.js
+
+/* ---------- palm shadows (the wedding page's noon light) ---------- */
+
+/**
+ * The soft shadow of coconut-palm fronds, as if the card were lying on a table
+ * at the resort around midday. Each frond is a curved rib with long, drooping
+ * leaflets either side. Drawn once and blurred; the page only moves it.
+ */
+function palmShadows() {
+  const rnd = mulberry32(5);
+  const frond = ([x0, y0], [cx, cy], [x1, y1], { leaflets = 34, maxLen = 150, droop = 0.35 } = {}) => {
+    const at = (t) => [
+      (1 - t) ** 2 * x0 + 2 * (1 - t) * t * cx + t * t * x1,
+      (1 - t) ** 2 * y0 + 2 * (1 - t) * t * cy + t * t * y1,
+    ];
+    const tangent = (t) => Math.atan2(2 * (1 - t) * (cy - y0) + 2 * t * (y1 - cy), 2 * (1 - t) * (cx - x0) + 2 * t * (x1 - cx));
+    let d = `M${pt([x0, y0])}Q${pt([cx, cy])} ${pt([x1, y1])}`;
+    const rib = d;
+    d = '';
+    for (let i = 0; i < leaflets; i++) {
+      const t = 0.06 + (0.92 * i) / leaflets;
+      const [bx, by] = at(t);
+      const a = tangent(t);
+      const len = maxLen * Math.sin(Math.PI * Math.min(1, t * 1.08)) ** 0.6 * (0.85 + rnd() * 0.3);
+      for (const side of [-1, 1]) {
+        // Leaflets point forward along the rib and hang down a little.
+        const ang = a + side * rad(52 + rnd() * 14) + droop * (side > 0 ? 0.25 : -0.25) + droop * 0.4;
+        const tip = [bx + Math.cos(ang) * len, by + Math.sin(ang) * len + len * droop * 0.5];
+        const mid = [(bx + tip[0]) / 2, (by + tip[1]) / 2];
+        const nx = -Math.sin(ang) * (5 + len * 0.035);
+        const ny = Math.cos(ang) * (5 + len * 0.035);
+        d += `M${pt([bx, by])}Q${pt([mid[0] + nx, mid[1] + ny])} ${pt(tip)}Q${pt([mid[0] - nx * 0.6, mid[1] - ny * 0.6])} ${pt([bx, by])}Z`;
+      }
+    }
+    return { leaves: d, rib };
+  };
+  const fronds = [
+    frond([-90, -70], [140, 40], [360, 250], { maxLen: 160 }),
+    frond([-110, 430], [80, 470], [300, 640], { maxLen: 130, droop: 0.45 }),
+    frond([700, 560], [560, 640], [400, 880], { maxLen: 120, droop: 0.3 }),
+  ];
+  return (
+    `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 900" preserveAspectRatio="xMidYMid slice" class="palms" aria-hidden="true" focusable="false">` +
+    `<defs><filter id="palm-blur" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation="7"/></filter></defs>` +
+    `<g class="palms__shade" filter="url(#palm-blur)">` +
+    fronds.map((f) => `<path d="${f.leaves}"/><path d="${f.rib}" fill="none" stroke-width="9" class="palms__rib"/>`).join('') +
+    `</g></svg>\n`
+  );
+}
+
 /* ---------- script "and" ---------- */
 
 async function andMark(fontFile) {
@@ -267,6 +334,8 @@ async function andMark(fontFile) {
 await mkdir(outDir, { recursive: true });
 await writeFile(path.join(outDir, 'petals.svg'), petalsStill());
 await writeFile(path.join(outDir, 'petals.html'), petalsLayered());
+await writeFile(path.join(outDir, 'petal-loose.html'), loosePetal());
+await writeFile(path.join(outDir, 'palms.svg'), palmShadows());
 const scriptFont = process.env.AND_FONT ?? 'pinyon-script/files/pinyon-script-latin-400-normal.woff';
 await writeFile(path.join(outDir, 'and.svg'), await andMark(path.join(root, 'node_modules/@fontsource', scriptFont)));
-console.log('wrote src/art/petals.svg, petals.html and and.svg');
+console.log('wrote src/art/: petals.svg, petals.html, petal-loose.html, palms.svg, and.svg');

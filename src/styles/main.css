@@ -260,6 +260,83 @@ button {
 .p-crease-line { stroke: var(--petal-crease); stroke-opacity: 0.25; }
 .p-shadow { fill: var(--petal-shadow); opacity: 0.22; }
 
+/* ---------- Ambient light: the hour of each event ---------- */
+
+.ambience {
+  position: absolute;
+  z-index: -1; /* after .petals in the page, so shadows fall across the petals too */
+  inset: -6%; /* oversized, so drifting never shows an edge */
+  pointer-events: none;
+}
+
+/* Day: the noon sun through palm fronds. A faint warm wash brightens the paper
+   (which only raises text contrast) and the fronds' shadow is kept light enough
+   that every text colour still passes WCAG AA on its darkest part. */
+.ambience--day {
+  background: radial-gradient(ellipse 70% 45% at 22% 6%, rgb(255 252 240 / 0.55), transparent 70%);
+}
+
+.palms {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.13; /* darkest overlap keeps olive labels at 4.9:1 (AA needs 4.5) */
+  transform-origin: 0 0;
+}
+
+.palms__shade {
+  fill: #2e2d1c;
+  stroke: #2e2d1c;
+}
+
+/* Evening: warm fairy-light glows, out of focus. */
+.glow {
+  position: absolute;
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 205 160 / 0.5) 0%, rgb(255 170 140 / 0.16) 42%, transparent 70%);
+  opacity: 0.7;
+}
+
+/* ---------- Drifting petals (when a guest finds their table) ---------- */
+
+.loose-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.drift {
+  position: absolute;
+  z-index: 2;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.drift__petal {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--size);
+  filter: drop-shadow(0 6px 5px rgb(var(--shadow-rgb) / 0.16));
+}
+
+.drift__sway {
+  display: block;
+}
+
+.drift__sway svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
 /* ---------- Hero: the invitation's lettering ---------- */
 
 .hero {
@@ -724,6 +801,42 @@ button {
     --wind-delay: -7s;
   }
 
+  /* Day: the palm shadows sway slowly, as fronds do in a sea breeze. */
+  .palms {
+    animation: palms-sway 14s ease-in-out infinite alternate;
+    will-change: transform;
+  }
+  .ambience--day {
+    animation: sun-breathe 18s ease-in-out infinite alternate;
+  }
+
+  /* Evening: each light breathes on its own rhythm. */
+  .glow {
+    animation: glow-breathe var(--t) ease-in-out var(--delay) infinite alternate;
+    will-change: transform, opacity;
+  }
+
+  /* The moment a guest finds their table, the wind picks up: the petal cluster
+     (and the palm shadows) get a gust on top of their usual sway, then settle. */
+  .is-gust .petals-art {
+    transform-origin: 100% 0;
+    animation: gust 2.6s cubic-bezier(0.25, 0.7, 0.3, 1);
+  }
+  .is-gust .ambience--day {
+    animation:
+      sun-breathe 18s ease-in-out infinite alternate,
+      palm-gust 2.6s cubic-bezier(0.25, 0.7, 0.3, 1);
+  }
+
+  /* …and a few petals break free and drift down past the card: a slow fall with
+     gravity, plus a faster sway and tumble — together they read as a real leaf. */
+  .drift__petal {
+    animation: drift-fall var(--dur) cubic-bezier(0.42, 0.08, 0.58, 1) var(--delay) both;
+  }
+  .drift__sway {
+    animation: drift-sway calc(var(--dur) / 3.4) ease-in-out var(--delay) infinite alternate both;
+  }
+
   /* The print develops slowly once it has arrived, like a photograph. */
   .petal-photo {
     transition: opacity 2200ms cubic-bezier(0.3, 0.1, 0.3, 1);
@@ -795,6 +908,88 @@ button {
   from {
     opacity: 0;
     transform: rotate(-5deg) translate(4%, -4%);
+  }
+}
+
+@keyframes palms-sway {
+  from {
+    transform: rotate(-0.8deg) translate(0, 0);
+  }
+  to {
+    transform: rotate(1deg) translate(-10px, 6px);
+  }
+}
+
+@keyframes sun-breathe {
+  from {
+    opacity: 0.8;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes glow-breathe {
+  from {
+    opacity: 0.35;
+    transform: scale(0.88);
+  }
+  to {
+    opacity: 0.85;
+    transform: scale(1.08);
+  }
+}
+
+@keyframes gust {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  18% {
+    transform: rotate(-5deg);
+  }
+  42% {
+    transform: rotate(2.4deg);
+  }
+  66% {
+    transform: rotate(-1deg);
+  }
+}
+
+@keyframes palm-gust {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  20% {
+    transform: translate(-14px, 4px);
+  }
+  50% {
+    transform: translate(6px, -2px);
+  }
+}
+
+@keyframes drift-fall {
+  0% {
+    opacity: 0;
+    transform: translate(var(--x0), var(--y0));
+  }
+  10%,
+  72% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--x1), var(--y1));
+  }
+}
+
+@keyframes drift-sway {
+  from {
+    transform: translateX(-16px) rotate(calc(var(--spin) * -1)) rotateY(0deg);
+  }
+  to {
+    transform: translateX(16px) rotate(var(--spin)) rotateY(55deg);
   }
 }
 
