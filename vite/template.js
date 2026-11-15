@@ -71,7 +71,7 @@ export function body(ev, base) {
       <img src="${BLANK}" alt="${esc(ev.photos.alt)}" width="1440" height="1800" decoding="async">
     </picture>
     <main class="card">
-      <div class="petals" aria-hidden="true">${art('petals.svg')}</div>
+      <div class="petals" aria-hidden="true">${art('petals.html')}</div>
 
       <header class="hero">
         <p class="eyebrow">${esc(ev.eyebrow)}</p>

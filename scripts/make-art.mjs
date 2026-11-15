@@ -1,7 +1,8 @@
 #!/usr/bin/env node
 /**
  * Generates the site's original artwork as SVG:
- *   src/art/petals.svg  ruffled fan petals with pleats, veins and a curled lip
+ *   src/art/petals.svg   ruffled fan petals with pleats, veins and a curled lip (still images)
+ *   src/art/petals.html  the same petals as separate layers, so each can sway on the page
  *   src/art/and.svg     the script "and" between the couple's names, as a path
  *
  *   npm run art
@@ -177,29 +178,56 @@ function petal({ base, dir, spread, R, k, amp, twist = 0.08, curl, seed, tone = 
     defs: defs.join(''),
     body: `<g class="petal petal--${tone}">${parts.join('')}</g>`,
     shadow: `<path d="${outline}"/>`,
+    base,
   };
 }
 
 /* ---------- composition ---------- */
 
-function petals() {
-  const W = 600;
-  const H = 800;
-  const list = [
-    petal({ base: [640, -70], dir: 166, spread: 27, R: 390, k: 4, amp: 0.035, seed: 11, tone: 'back', veins: 60, lean: 0.12, bend: 0.06 }),
-    petal({ base: [660, 10], dir: 146, spread: 36, R: 500, k: 5, amp: 0.045, seed: 7, curl: [-0.4, 0.45], veins: 96, lean: -0.1, bend: 0.1 }),
-    petal({ base: [690, 350], dir: 121, spread: 28, R: 400, k: 4, amp: 0.05, seed: 23, twist: -0.1, curl: [0.05, 0.8], veins: 76, lean: 0.15, bend: -0.08 }),
-  ];
-  const defs = list.map((p) => p.defs).join('');
-  const shadows = list.map((p) => p.shadow).join('');
-  const body = list.map((p) => p.body).join('');
+const W = 600;
+const H = 800;
+
+const PETALS = [
+  { base: [640, -70], dir: 166, spread: 27, R: 390, k: 4, amp: 0.035, seed: 11, tone: 'back', veins: 60, lean: 0.12, bend: 0.06 },
+  { base: [660, 10], dir: 146, spread: 36, R: 500, k: 5, amp: 0.045, seed: 7, curl: [-0.4, 0.45], veins: 96, lean: -0.1, bend: 0.1 },
+  { base: [690, 350], dir: 121, spread: 28, R: 400, k: 4, amp: 0.05, seed: 23, twist: -0.1, curl: [0.05, 0.8], veins: 76, lean: 0.15, bend: -0.08 },
+];
+
+const shadowFilter = (id) =>
+  `<filter id="${id}" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="16"/></filter>`;
+
+/** One flat SVG, used for still images (link previews, print signs). */
+function petalsStill() {
+  const list = PETALS.map(petal);
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="petals-art" aria-hidden="true" focusable="false">` +
-    `<defs><filter id="ps" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="16"/></filter>${defs}</defs>` +
-    `<g class="p-shadow" filter="url(#ps)" transform="translate(-10 18)">${shadows}</g>` +
-    body +
+    `<defs>${shadowFilter('ps')}${list.map((p) => p.defs).join('')}</defs>` +
+    `<g class="p-shadow" filter="url(#ps)" transform="translate(-10 18)">${list.map((p) => p.shadow).join('')}</g>` +
+    list.map((p) => p.body).join('') +
     `</svg>\n`
   );
+}
+
+/**
+ * For the page: each petal is its own layer so it can sway in the wind.
+ * The browser paints each layer once and then only rotates the finished image
+ * (on the GPU), instead of redrawing thousands of veins on every frame.
+ * --origin is the petal's base, which it pivots around; overflow is visible so
+ * the edges of the drawing area never show as a straight cut while it moves.
+ */
+function petalsLayered() {
+  const layers = PETALS.map((spec, i) => {
+    const p = petal(spec);
+    const origin = `${f((p.base[0] / W) * 100)}% ${f((p.base[1] / H) * 100)}%`;
+    return (
+      `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" class="petal-layer" style="--origin: ${origin}" focusable="false">` +
+      `<defs>${shadowFilter(`ps${i}`)}${p.defs}</defs>` +
+      `<g class="p-shadow" filter="url(#ps${i})" transform="translate(-10 18)">${p.shadow}</g>` +
+      p.body +
+      `</svg>`
+    );
+  });
+  return `<div class="petals-art">${layers.join('')}</div>\n`;
 }
 
 /* ---------- script "and" ---------- */
@@ -232,7 +260,8 @@ async function andMark(fontFile) {
 }
 
 await mkdir(outDir, { recursive: true });
-await writeFile(path.join(outDir, 'petals.svg'), petals());
+await writeFile(path.join(outDir, 'petals.svg'), petalsStill());
+await writeFile(path.join(outDir, 'petals.html'), petalsLayered());
 const scriptFont = process.env.AND_FONT ?? 'pinyon-script/files/pinyon-script-latin-400-normal.woff';
 await writeFile(path.join(outDir, 'and.svg'), await andMark(path.join(root, 'node_modules/@fontsource', scriptFont)));
-console.log('wrote src/art/petals.svg and src/art/and.svg');
+console.log('wrote src/art/petals.svg, petals.html and and.svg');
