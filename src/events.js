@@ -42,7 +42,7 @@ export const EVENTS = {
     photos: {
       preview: 'SPP07416',
       petal: 'SPP07061',
-      petalBox: [65, -35, 540],
+      petalBox: [92, -35, 540],
       petalFaces: [0.52, 0.35],
       keepsake: 'SPP07416',
       keepsakeAlt: 'Pasindu and Ashinsana laughing together on the beach',
