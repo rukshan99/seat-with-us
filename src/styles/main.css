@@ -556,17 +556,9 @@ button {
   height: 0.6em;
 }
 
-.result__meta {
-  margin-top: 22px;
-  font-size: 14px;
-  letter-spacing: 0.04em;
-  color: var(--muted);
-  text-align: center;
-}
-
 .again {
   min-height: 48px;
-  margin-top: 10px;
+  margin-top: 24px;
   padding: 12px 18px;
   font: 500 12px/1 var(--font-sans);
   letter-spacing: 0.22em;
@@ -698,7 +690,6 @@ button {
   .result.is-revealing .escort__pending {
     animation: rise-in 520ms var(--ease) 860ms both;
   }
-  .result.is-revealing .result__meta,
   .result.is-revealing .again {
     animation: fade-in 400ms var(--ease) 1000ms both;
   }

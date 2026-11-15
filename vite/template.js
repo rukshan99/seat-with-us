@@ -108,7 +108,6 @@ export function body(ev, base) {
             </div>
           </div>
         </div>
-        <p class="result__meta">${esc(ev.venue)} · ${esc(ev.time)}</p>
         <button class="again" type="button">Search another name</button>
       </section>
 
