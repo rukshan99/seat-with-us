@@ -1,0 +1,8 @@
+node_modules/
+dist/
+*.log
+.DS_Store
+# The planning spreadsheet holds private data (quantities, drinks); only the
+# generated JSON in src/data is published.
+*.xlsx
+.lighthouse/
