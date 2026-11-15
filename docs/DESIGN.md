@@ -21,13 +21,11 @@ The wedding (10 Dec) and the homecoming (13 Dec) are different days, venues and 
 | `/seat-with-us/homecoming/` | homecoming card / Eagles' Lagoon entrance sign | **Evening**: oxblood and rose |
 | `/seat-with-us/` | (safety net for people who type the URL) | Picks the event from today's date in Sri Lanka time: up to 11 Dec shows the wedding, from 12 Dec the homecoming |
 
-For anyone who scanned the wrong code, there are two quiet ways to the other event:
-- a footer link ("Here for the homecoming on 13 December?")
-- a hint inside the not-found message: if the name isn't on this list but is on the other one, it says so and links straight there with the name already filled in.
+Each page knows only its own event: there are no links between the two. Someone who scans the wrong code sees the not-found message, which points them to the ushers.
 
-*(Revised during the build: a tab switch at the top would have sat on the petals and added chrome for everyone to solve a problem very few have. It's better to fix the rare problem at the moment it happens.)*
+*(Revised twice. A tab switch at the top was dropped during the build because it would have sat on the petals and added chrome for everyone. A footer link and a cross-event hint in the not-found message replaced it, and after launch the couple asked for those to go too, so each page stays focused on one occasion.)*
 
-**Why:** Joy's search makes you pick an event *before* you can type. Here the QR code has already told us which event the guest is at, so asking again would be a wasted step. The best choice is one the user never has to make, as long as they can still undo it if we guessed wrong.
+**Why:** Joy's search makes you pick an event *before* you can type. Here the QR code has already told us which event the guest is at, so asking again would be a wasted step. The best choice is one the user never has to make.
 
 ## 3. Aesthetic direction: the invitation, brought to life
 

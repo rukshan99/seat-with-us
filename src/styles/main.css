@@ -457,11 +457,6 @@ button {
   font-weight: 500;
 }
 
-.notice__other a {
-  color: var(--accent);
-  text-underline-offset: 0.22em;
-}
-
 /* ---------- Result: the escort card ---------- */
 
 .result {
@@ -638,35 +633,6 @@ button {
   color: var(--muted);
 }
 
-/* ---------- Footer: the other event ---------- */
-
-.other {
-  margin-top: auto;
-  padding-top: 40px;
-}
-
-.other__link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5em;
-  min-height: 48px;
-  font-size: 15px;
-  color: var(--muted);
-  text-decoration: underline;
-  text-decoration-color: var(--line);
-  text-underline-offset: 0.3em;
-}
-
-.other__arrow {
-  transition: transform var(--t-fast) var(--ease);
-}
-
-@media (hover: hover) {
-  .other__link:hover .other__arrow {
-    transform: translateX(3px);
-  }
-}
-
 .noscript {
   position: fixed;
   inset: auto 16px 16px;
@@ -686,8 +652,7 @@ button {
 }
 
 .is-compact .eyebrow,
-.is-compact .meta,
-.is-compact .other {
+.is-compact .meta {
   display: none;
 }
 

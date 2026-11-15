@@ -1,12 +1,10 @@
 import './styles/main.css';
 import { buildIndex, normalize, search } from './search.js';
-import { EVENTS } from './events.js';
 
 /* ---------- Setup ---------- */
 
 const html = document.documentElement;
 const eventKey = html.dataset.event;
-const otherKey = eventKey === 'wedding' ? 'homecoming' : 'wedding';
 const STORAGE_KEY = `seat-with-us:${eventKey}`;
 
 // Guest lists load in the background as soon as the page runs; by the time
@@ -15,9 +13,7 @@ const loaders = {
   wedding: () => import('./data/wedding.json'),
   homecoming: () => import('./data/homecoming.json'),
 };
-const indexes = {};
-const loadIndex = (key) => (indexes[key] ??= loaders[key]().then((m) => buildIndex(m.default)));
-const ready = loadIndex(eventKey);
+const ready = loaders[eventKey]().then((m) => buildIndex(m.default));
 
 const $ = (selector) => document.querySelector(selector);
 const el = {
@@ -182,7 +178,7 @@ function hideNotice() {
   el.notice.replaceChildren();
 }
 
-async function showNotFound(query) {
+function showNotFound(query) {
   const typed = query.trim();
   const title = document.createElement('p');
   title.className = 'notice__title';
@@ -195,19 +191,6 @@ async function showNotFound(query) {
   el.help.hidden = true;
   announce(`No match for ${typed}. Try just your first name, or ask an usher at the entrance.`);
 
-  // Scanned the other event's QR code? Look there too, and offer the way across.
-  const other = await loadIndex(otherKey);
-  if (el.input.value !== query || el.notice.hidden) return;
-  const [best] = search(other, query, { limit: 1 });
-  if (!best || best.score < 0.8) return;
-  const ev = EVENTS[otherKey];
-  const line = document.createElement('p');
-  line.className = 'notice__other';
-  const link = document.createElement('a');
-  link.href = `../${otherKey}/?name=${encodeURIComponent(typed)}`;
-  link.textContent = `See the ${ev.label.toLowerCase()} list`;
-  line.append(`${best.guest.name} is on the ${ev.label.toLowerCase()} list (${ev.dateLabel}). `, link);
-  el.notice.append(line);
 }
 
 async function update() {

@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
-import { EVENTS, SITE_URL, SWITCH_TO_HOMECOMING_ON } from '../src/events.js';
+import { SITE_URL, SWITCH_TO_HOMECOMING_ON } from '../src/events.js';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const art = (name) => readFileSync(path.join(root, 'src/art', name), 'utf8').trim();
@@ -81,8 +81,6 @@ export function body(ev, base) {
   const [first, second] = ev.names;
   const ks = [480, 960];
   const ksSizes = '(min-width: 720px) 16rem, 72vw';
-  const other = EVENTS[ev.key === 'wedding' ? 'homecoming' : 'wedding'];
-  const otherDay = other.dateLabel.split(', ')[1];
 
   return `
   <div class="frame">
@@ -149,10 +147,6 @@ export function body(ev, base) {
           <figcaption class="keepsake__caption">Thank you for celebrating with us</figcaption>
         </figure>
       </section>
-
-      <nav class="other" aria-label="Other event">
-        <a class="other__link" href="${base}${other.key}/">Here for the ${other.label.toLowerCase()} on ${esc(otherDay)}?<span class="other__arrow" aria-hidden="true">→</span></a>
-      </nav>
 
       <p class="sr-only" id="status" role="status" aria-live="polite"></p>
     </main>
