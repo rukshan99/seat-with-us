@@ -1,15 +1,20 @@
 #!/usr/bin/env node
 /**
- * Favicon, home-screen icon and the link-preview images shown when the URL is
- * shared on WhatsApp / iMessage / Facebook.
+ * Every image the site uses besides the generated artwork:
  *
- *   npm run icons
+ *   npm run images
  *
- * Writes to public/ (copied as-is into the site by Vite):
- *   favicon.svg, favicon-32.png, apple-touch-icon.png, og/wedding.jpg, og/homecoming.jpg
- * Photos come from assets/photos/ (reduced copies of the engagement shoot).
+ * public/  (copied as-is into the site)
+ *   favicon.svg, favicon-32.png, apple-touch-icon.png
+ *   og/<event>.jpg                      link previews for WhatsApp / iMessage / Facebook
+ * src/photos/  (fingerprinted by Vite)
+ *   photo-<event>-backdrop-<w>.avif|jpg  left half of the screen on desktop
+ *   photo-<event>-keepsake-<w>.avif|jpg  the print under the result card
+ *
+ * Sources are assets/photos/<id>.jpg (1800 px copies of the engagement shoot);
+ * which photo goes where is set per event in src/events.js.
  */
-import { mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import sharp from 'sharp';
 import { root, THEMES, fonts, text, petals, andMark, placeAnd } from './lib/brand.mjs';
@@ -66,7 +71,7 @@ async function preview(key) {
     placeAnd(mark, { x: x + 54, y: 306, height: 58, fill: t.muted }) +
     `</svg>`;
 
-  const photo = await sharp(path.join(root, 'assets/photos', `${key}.jpg`))
+  const photo = await sharp(path.join(root, 'assets/photos', `${ev.photos.preview}.jpg`))
     .resize(PHOTO_W, H, { fit: 'cover', position: 'centre' })
     .toBuffer();
 
@@ -77,4 +82,32 @@ async function preview(key) {
 }
 
 for (const key of Object.keys(EVENTS)) await preview(key);
-console.log('wrote favicon.svg, favicon-32.png, apple-touch-icon.png, og/wedding.jpg, og/homecoming.jpg');
+
+/* ---------- Photos on the page ---------- */
+
+const photoDir = path.join(root, 'src', 'photos');
+await rm(photoDir, { recursive: true, force: true });
+await mkdir(photoDir, { recursive: true });
+
+/**
+ * 4:5 portrait crops. The top edge sits just above the photographer's signature
+ * (about 5–9% down every frame) so their credit stays whole; the rest comes
+ * off the sand at the bottom.
+ */
+async function webPhoto(id, name, widths) {
+  const source = sharp(path.join(root, 'assets/photos', `${id}.jpg`));
+  const { width, height } = await source.metadata();
+  const cropH = Math.round(width * 1.25);
+  const crop = { left: 0, top: Math.round(height * 0.03), width, height: cropH };
+  for (const w of widths) {
+    const resized = () => sharp(path.join(root, 'assets/photos', `${id}.jpg`)).extract(crop).resize(w);
+    await resized().avif({ quality: 52, effort: 6 }).toFile(path.join(photoDir, `photo-${name}-${w}.avif`));
+    await resized().jpeg({ quality: 76, mozjpeg: true }).toFile(path.join(photoDir, `photo-${name}-${w}.jpg`));
+  }
+}
+
+for (const [key, ev] of Object.entries(EVENTS)) {
+  await webPhoto(ev.photos.backdrop, `${key}-backdrop`, [720, 1080, 1440]);
+  await webPhoto(ev.photos.keepsake, `${key}-keepsake`, [480, 960]);
+}
+console.log('wrote icons, og/ previews and src/photos/');

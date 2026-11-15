@@ -15,7 +15,7 @@
     "import-guests": "node scripts/import-guests.mjs",
     "qr": "node scripts/make-qr.mjs",
     "art": "node scripts/make-art.mjs",
-    "icons": "node scripts/make-icons.mjs"
+    "images": "node scripts/make-images.mjs"
   },
   "devDependencies": {
     "@fontsource/allura": "^5.3.0",
