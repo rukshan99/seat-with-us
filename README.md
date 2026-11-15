@@ -118,9 +118,26 @@ Printing tips: keep the code at least 2.5 cm wide, and print it dark on light, e
 | Command | Regenerates |
 |---|---|
 | `npm run art` | `src/art/petals.svg` (the petal artwork) and `src/art/and.svg` (the script "and") |
-| `npm run icons` | Favicon, home-screen icon and the link-preview images in `public/og/` |
+| `npm run images` | Favicon, home-screen icon, link previews in `public/og/`, and the photos on the page in `src/photos/` |
 
 All of them run in plain Node, with no browser or design tools needed.
+
+### Photos
+
+Each event uses three engagement photos, chosen in `src/events.js` under `photos`:
+
+| Key | Where it appears |
+|---|---|
+| `preview` | The link preview when the URL is shared on WhatsApp or iMessage |
+| `backdrop` | The left half of the screen on desktop. `backdropFocus` sets which part stays in view. Phones never download it. |
+| `keepsake` | The small print under the result card, captioned "Thank you for celebrating with us". It loads only once a result is shown. |
+
+The sources are `assets/photos/<id>.jpg`, 1800 px copies of the shoot. To use a different photo:
+1. Add its 1800 px copy to `assets/photos/`.
+2. Put its id in `src/events.js`.
+3. Run `npm run images`.
+
+The page photos are cropped to 4:5 and exported as AVIF with a JPEG fallback, at several sizes so each screen downloads only what it needs.
 
 ## Project layout
 

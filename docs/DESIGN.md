@@ -189,5 +189,8 @@ The `frontend-design` skill warns that AI design tends to fall back on *cream ba
 ## 13. Decisions (15 Nov 2026)
 
 1. **Petal artwork:** nothing is cropped from the invitation images, since a crop can't meet the quality bar. We draw original vector petals instead (see §3).
-2. **Photos:** used where they matter most, in the **link preview** that appears when the URL is shared on WhatsApp or iMessage, with one preview per event. They stay off the page itself so the petals and the escort card have the screen to themselves.
+2. **Photos:** at first they were used only in the **link preview** (WhatsApp/iMessage). After launch, the couple asked to see them on the page, so they now appear in two places that keep them out of the way of the main job:
+   - **Desktop backdrop:** a split layout, with the photo filling the left half at full height and fading into the surround, and the invitation card on the right. A full-screen photo behind a centred card would have hidden the couple, who stand in the middle of every frame, and these portrait shots fit a half-screen panel almost exactly. Phones never download it.
+   - **Keepsake:** a small, slightly tilted print under the result card with "Thank you for celebrating with us". It sits below "Search another name", so the button stays in thumb reach and the photo is a reward for scrolling, not a step before the answer. It loads only once a result is shown.
+   - Both crops keep the photographer's signature whole, as their credit.
 3. **Offline:** yes, using a service worker (see §11).
