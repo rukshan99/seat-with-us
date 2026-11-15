@@ -1,0 +1,765 @@
+/* ==========================================================================
+   Seat With Us — styles
+   One file, ordered: fonts → tokens → base → layout → components → states → motion.
+   Every colour comes from a theme token; see docs/DESIGN.md §4 for contrast.
+   ========================================================================== */
+
+/* ---------- Fonts (self-hosted, Latin subset) ---------- */
+
+@font-face {
+  font-family: 'Cormorant Garamond';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/cormorant-garamond/files/cormorant-garamond-latin-500-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/jost/files/jost-latin-400-normal.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Jost';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('../../node_modules/@fontsource/jost/files/jost-latin-500-normal.woff2') format('woff2');
+}
+/* Fallbacks tuned to the real fonts' proportions, so nothing jumps when they load. */
+@font-face {
+  font-family: 'Cormorant Fallback';
+  src: local('Georgia'), local('Times New Roman');
+  size-adjust: 88.4%;
+  ascent-override: 104.6%;
+  descent-override: 32.5%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Jost Fallback';
+  src: local('Arial'), local('Helvetica');
+  size-adjust: 96%;
+  ascent-override: 111.5%;
+  descent-override: 39.1%;
+  line-gap-override: 0%;
+}
+
+/* ---------- Tokens ---------- */
+
+:root {
+  --font-display: 'Cormorant Garamond', 'Cormorant Fallback', Georgia, serif;
+  --font-sans: 'Jost', 'Jost Fallback', Arial, sans-serif;
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --t-fast: 150ms;
+  --t-mid: 250ms;
+
+  --gutter: 24px;
+  --radius: 14px;
+}
+
+/* Day — the wedding reception starts at 11 AM by the sea. Ivory and olive, like the card. */
+html[data-event='wedding'] {
+  --bg: #eee7da;
+  --surface: #f6f1e7;
+  --ink: #1f1e17;
+  --muted: #55542f;
+  --accent: #55542f;
+  --deco: #9e9a79;
+  --surround: #6b6a46;
+  --line: rgb(85 84 47 / 0.26);
+  --wash: rgb(85 84 47 / 0.09);
+  --shadow-rgb: 46 45 28;
+
+  --petal-deep: #5d5c38;
+  --petal-mid: #8c8966;
+  --petal-light: #d8d3bc;
+  --petal-vein: #f6f2e6;
+  --petal-crease: #46452b;
+  --petal-rim: #fbf8ef;
+  --petal-shadow: #3d3c25;
+}
+
+/* Evening — the homecoming runs 6.30 to 11 PM. Oxblood and rose, like the card. */
+html[data-event='homecoming'] {
+  --bg: #3a0709;
+  --surface: #4e0c10;
+  --ink: #f3e3dc;
+  --muted: #d99789;
+  --accent: #e8b4a8;
+  --deco: #a9544a;
+  --surround: #220304;
+  --line: rgb(232 180 168 / 0.24);
+  --wash: rgb(232 180 168 / 0.1);
+  --shadow-rgb: 8 0 1;
+
+  --petal-deep: #5e1015;
+  --petal-mid: #a8484a;
+  --petal-light: #eeb2a4;
+  --petal-vein: #ffe6dd;
+  --petal-crease: #33050a;
+  --petal-rim: #ffdcd2;
+  --petal-shadow: #0d0001;
+}
+
+/* ---------- Base ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--surround);
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  font: 400 18px/1.55 var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+}
+
+p,
+h1,
+h2 {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ---------- Layout: the screen is the invitation card ---------- */
+
+.frame {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 100dvh;
+  padding: max(16px, env(safe-area-inset-top)) var(--gutter) max(20px, env(safe-area-inset-bottom));
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* On a large screen the card floats on its surround, like the printed invitation. */
+@media (min-width: 720px) {
+  .frame {
+    padding: 4dvh 24px;
+  }
+  .card {
+    --gutter: 52px;
+    width: 31rem;
+    min-height: min(58rem, 92dvh);
+    border-radius: 3px;
+    box-shadow:
+      0 1px 2px rgb(var(--shadow-rgb) / 0.18),
+      0 34px 70px -28px rgb(var(--shadow-rgb) / 0.55);
+  }
+}
+
+/* ---------- Petals ---------- */
+
+.petals {
+  position: absolute;
+  z-index: -1;
+  top: -1.5%;
+  right: -26%;
+  width: min(122%, 36rem);
+  pointer-events: none;
+  transform-origin: 100% 0;
+}
+
+.petals-art {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Petal colours come from the theme (the SVG references these classes). */
+.p-deep { stop-color: var(--petal-deep); }
+.p-mid { stop-color: var(--petal-mid); }
+.p-light { stop-color: var(--petal-light); }
+.p-crease { stop-color: var(--petal-crease); }
+.p-rim { stop-color: var(--petal-rim); }
+.p-vein { stroke: var(--petal-vein); stroke-opacity: 0.38; }
+.p-vein-dark { stroke: var(--petal-crease); stroke-opacity: 0.22; }
+.p-rim-line { stroke: var(--petal-rim); stroke-opacity: 0.85; }
+.p-crease-line { stroke: var(--petal-crease); stroke-opacity: 0.25; }
+.p-shadow { fill: var(--petal-shadow); opacity: 0.22; }
+
+/* ---------- Hero: the invitation's lettering ---------- */
+
+.hero {
+  margin-top: clamp(150px, 31dvh, 290px);
+}
+
+.label,
+.eyebrow,
+.meta__date {
+  font: 500 12px/1.3 var(--font-sans);
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.names {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 18px;
+  font: 500 clamp(32px, 9.4vw, 46px) / 1 var(--font-display);
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.names__and {
+  display: block;
+  margin: 0.06em 0 0.04em 0.85em;
+}
+
+.and-mark {
+  display: block;
+  width: auto;
+  height: 0.92em;
+  color: var(--muted);
+  overflow: visible;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 26px;
+}
+
+.meta__venue {
+  font: 500 17px/1.3 var(--font-display);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+/* ---------- Finder ---------- */
+
+.finder {
+  margin-top: 40px;
+}
+
+.finder__label {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.field {
+  position: relative;
+}
+
+.field__input {
+  display: block;
+  width: 100%;
+  height: 60px;
+  padding: 0 56px 0 20px;
+  font: 400 20px/1 var(--font-sans);
+  color: var(--ink);
+  caret-color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 10px 30px -22px rgb(var(--shadow-rgb) / 0.5);
+  transition:
+    border-color var(--t-fast) var(--ease),
+    box-shadow var(--t-fast) var(--ease);
+  appearance: none;
+}
+
+.field__input::placeholder {
+  color: var(--muted);
+  opacity: 1;
+}
+
+.field__input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 1px var(--accent),
+    0 14px 34px -22px rgb(var(--shadow-rgb) / 0.6);
+}
+
+.field__clear {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  color: var(--muted);
+  background: none;
+  border: 0;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.help {
+  margin: 12px 0 0 2px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+/* Suggestions */
+
+.matches {
+  margin: 10px 0 0;
+  padding: 6px;
+  list-style: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: 0 22px 44px -26px rgb(var(--shadow-rgb) / 0.55);
+}
+
+.match {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 56px;
+  padding: 9px 14px;
+  border-radius: 9px;
+  cursor: pointer;
+  transition: background-color var(--t-fast) var(--ease);
+}
+
+.match[aria-selected='true'] {
+  background: var(--wash);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
+
+@media (hover: hover) {
+  .match:hover {
+    background: var(--wash);
+  }
+}
+
+.match__name {
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.match__name mark {
+  color: inherit;
+  background: none;
+  text-decoration: underline;
+  text-decoration-color: var(--deco);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+
+.match__meta {
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--muted);
+}
+
+/* Not found */
+
+.notice {
+  margin-top: 14px;
+  padding: 4px 0 4px 18px;
+  border-left: 2px solid var(--deco);
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--ink);
+}
+
+.notice p + p {
+  margin-top: 8px;
+}
+
+.notice__title {
+  font-weight: 500;
+}
+
+.notice__other a {
+  color: var(--accent);
+  text-underline-offset: 0.22em;
+}
+
+/* ---------- Result: the escort card ---------- */
+
+.result {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 28px;
+}
+
+.escort {
+  display: grid;
+  grid-auto-rows: 1fr; /* both halves of a tent card are the same height */
+  width: min(100%, 21rem);
+  perspective: 1200px;
+  filter: drop-shadow(0 22px 26px rgb(var(--shadow-rgb) / 0.22)) drop-shadow(0 2px 3px rgb(var(--shadow-rgb) / 0.12));
+}
+
+.escort__top,
+.escort__face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 22px;
+  text-align: center;
+  background: var(--surface);
+}
+
+.escort__top {
+  border-radius: 6px 6px 0 0;
+}
+
+.escort__name {
+  margin-top: 12px;
+  font: 500 clamp(28px, 8vw, 36px) / 1.08 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-wrap: balance;
+  color: var(--ink);
+  outline: none;
+}
+
+.escort__hint {
+  margin-top: 8px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.escort__flap {
+  position: relative;
+  display: grid;
+  transform-origin: 50% 0;
+  transform-style: preserve-3d;
+}
+
+.escort__face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.escort__face--front {
+  position: relative;
+  border-radius: 0 0 6px 6px;
+  /* The crease: light falls across the fold. */
+  background-image: linear-gradient(to bottom, rgb(var(--shadow-rgb) / 0.07), transparent 22%);
+}
+
+.escort__face--front::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 18px;
+  right: 18px;
+  border-top: 1px dashed var(--line);
+}
+
+.escort__face--back {
+  border-radius: 6px 6px 0 0;
+  transform: rotateX(180deg);
+}
+
+.escort__seat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.escort__table {
+  margin-top: 2px;
+  font: 500 clamp(6.5rem, 33vw, 9rem) / 0.95 var(--font-display);
+  font-variant-numeric: lining-nums;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+}
+
+.escort__party {
+  margin-top: 4px;
+  font-size: 15px;
+  color: var(--muted);
+}
+
+.escort__pending-title {
+  font: 500 24px/1.15 var(--font-display);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+.escort__pending-text {
+  margin-top: 10px;
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--muted);
+  text-wrap: balance;
+}
+
+.monogram {
+  display: flex;
+  align-items: center;
+  gap: 0.18em;
+  font: 500 46px/1 var(--font-display);
+  color: var(--muted);
+}
+
+.monogram__and {
+  height: 0.6em;
+}
+
+.result__meta {
+  margin-top: 22px;
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  text-align: center;
+}
+
+.again {
+  min-height: 48px;
+  margin-top: 10px;
+  padding: 12px 18px;
+  font: 500 12px/1 var(--font-sans);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: none;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 0.6em;
+}
+
+/* ---------- Footer: the other event ---------- */
+
+.other {
+  margin-top: auto;
+  padding-top: 40px;
+}
+
+.other__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5em;
+  min-height: 48px;
+  font-size: 15px;
+  color: var(--muted);
+  text-decoration: underline;
+  text-decoration-color: var(--line);
+  text-underline-offset: 0.3em;
+}
+
+.other__arrow {
+  transition: transform var(--t-fast) var(--ease);
+}
+
+@media (hover: hover) {
+  .other__link:hover .other__arrow {
+    transform: translateX(3px);
+  }
+}
+
+.noscript {
+  position: fixed;
+  inset: auto 16px 16px;
+  padding: 14px 18px;
+  font-size: 15px;
+  color: var(--ink);
+  background: var(--surface);
+  border-radius: var(--radius);
+}
+
+/* ---------- States ---------- */
+
+/* Compact: while typing on a phone (keyboard up), and when showing a result.
+   The couple's names shrink to one line so the work area sits above the keyboard. */
+.is-compact .hero {
+  margin-top: 18px;
+}
+
+.is-compact .eyebrow,
+.is-compact .meta,
+.is-compact .other {
+  display: none;
+}
+
+.is-compact .names {
+  flex-direction: row;
+  align-items: center;
+  gap: 0.35em;
+  margin-top: 0;
+  font-size: 19px;
+}
+
+.is-compact .names__and {
+  margin: 0;
+}
+
+.is-compact .finder {
+  margin-top: 22px;
+}
+
+.is-compact .petals {
+  transform: translate(-18%, -8%) scale(0.38);
+}
+
+/* A remembered result is restored by script; hide the search until then. */
+.is-remembered:not(.is-ready) .hero,
+.is-remembered:not(.is-ready) .finder {
+  visibility: hidden;
+}
+
+/* ---------- Motion (only for people who haven't asked for less) ---------- */
+
+@media (prefers-reduced-motion: no-preference) {
+  .petals {
+    animation: petals-settle 1600ms var(--ease) 60ms both;
+    transition:
+      transform 600ms var(--ease),
+      opacity 600ms var(--ease);
+  }
+
+  .matches:not([hidden]) {
+    animation: rise-in var(--t-mid) var(--ease);
+  }
+
+  .notice:not([hidden]) {
+    animation: rise-in var(--t-mid) var(--ease);
+  }
+
+  /* The moment: the card rises, then opens along its fold, then the number arrives. */
+  .result.is-revealing .escort {
+    animation: escort-arrive 480ms var(--ease) both;
+  }
+  .result.is-revealing .escort__flap {
+    animation: escort-open 820ms cubic-bezier(0.32, 0.72, 0.2, 1) 320ms both;
+  }
+  .result.is-revealing .escort__face--front::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: rgb(var(--shadow-rgb));
+    animation: escort-shade 820ms cubic-bezier(0.32, 0.72, 0.2, 1) 320ms both;
+    pointer-events: none;
+  }
+  .result.is-revealing .escort__table,
+  .result.is-revealing .escort__pending {
+    animation: rise-in 520ms var(--ease) 860ms both;
+  }
+  .result.is-revealing .result__meta,
+  .result.is-revealing .again {
+    animation: fade-in 400ms var(--ease) 1000ms both;
+  }
+
+  ::view-transition-group(*) {
+    animation-duration: 320ms;
+    animation-timing-function: var(--ease);
+  }
+
+  @view-transition {
+    navigation: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .result.is-revealing .escort {
+    animation: fade-in 180ms linear both;
+  }
+}
+
+@keyframes petals-settle {
+  from {
+    opacity: 0;
+    transform: rotate(-5deg) translate(4%, -4%);
+  }
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes escort-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+}
+
+@keyframes escort-open {
+  from {
+    transform: rotateX(180deg);
+  }
+}
+
+@keyframes escort-shade {
+  0% {
+    opacity: 0.4;
+  }
+  60% {
+    opacity: 0.12;
+  }
+  100% {
+    opacity: 0;
+  }
+}
