@@ -876,27 +876,13 @@ button {
   .result.is-revealing .again {
     animation: fade-in 400ms var(--ease) 1000ms both;
   }
-  /* The keepsake waits until the card has opened and the petals are falling,
-     then drifts down among them like one more petal: a slow, swaying descent
-     that rocks side to side before it settles at its resting tilt. The caption
-     is the last thing to arrive, once the print is still. */
-  /* Two animations on separate properties: one smooth, slowing fall (translate)
-     and a pendulum sway (transform) that eases in and out at each turn, so the
-     descent never stutters while the swing does. It lands as the falling
-     petals reach it. */
-  .result.is-revealing .keepsake {
-    transform-origin: 50% 0;
-    animation:
-      keepsake-fall 2800ms cubic-bezier(0.22, 0.55, 0.3, 1) 2200ms both,
-      keepsake-sway 2800ms ease-in-out 2200ms both;
-  }
-  .result.is-revealing .keepsake__caption {
-    animation: fade-in 1000ms var(--ease) 4700ms both;
-  }
-  /* The photo itself fades in when it arrives, rather than popping in. */
+  /* The keepsake has no entrance of its own: the reveal belongs to the card and
+     the petals, and the print is simply there, like a photo left on the table.
+     Only the photo fades in when it finishes loading, so it never pops into an
+     empty frame on a slow connection. */
   .keepsake__img {
     opacity: 0;
-    transition: opacity 1200ms var(--ease);
+    transition: opacity 600ms var(--ease);
   }
   .keepsake__img.is-loaded {
     opacity: 1;
@@ -1049,38 +1035,6 @@ button {
 @keyframes escort-open {
   from {
     transform: rotateX(180deg);
-  }
-}
-
-@keyframes keepsake-fall {
-  0% {
-    opacity: 0;
-    translate: 0 -64px;
-  }
-  45% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 1;
-    translate: 0 0;
-  }
-}
-
-@keyframes keepsake-sway {
-  0% {
-    transform: translateX(-16px) rotate(-8deg);
-  }
-  30% {
-    transform: translateX(12px) rotate(3.5deg);
-  }
-  58% {
-    transform: translateX(-6px) rotate(-4deg);
-  }
-  80% {
-    transform: translateX(2px) rotate(-1deg);
-  }
-  100% {
-    transform: rotate(-2deg);
   }
 }
 
