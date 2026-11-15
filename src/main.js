@@ -263,12 +263,13 @@ function showResult(guest, { animate, remembered = false }) {
       void el.result.offsetWidth; // restart the animation
       el.result.classList.add('is-revealing');
     }
+    // Focus only once the card is actually shown (a view transition applies this later).
+    window.scrollTo({ top: 0 });
+    el.name.focus({ preventScroll: true });
   };
   if (animate) transition(reveal);
   else reveal();
 
-  window.scrollTo({ top: 0 });
-  el.name.focus({ preventScroll: true });
   announce(
     guest.table
       ? `${guest.name}, table ${guest.table}.`
@@ -282,21 +283,23 @@ function choose(guest) {
   showResult(guest, { animate: true });
 }
 
-function searchAgain() {
+/**
+ * Back to the search. Done synchronously inside the tap, not in a view
+ * transition: phones only open the keyboard for focus() inside a user gesture.
+ */
+function searchAgain({ focus = true } = {}) {
   storage.clear();
-  transition(() => {
-    html.classList.remove('is-result');
-    if (!smallScreen.matches) html.classList.remove('is-compact');
-    el.result.hidden = true;
-    el.result.classList.remove('is-revealing');
-    el.finder.hidden = false;
-    el.input.value = '';
-    renderMatches([]);
-    hideNotice();
-    el.clear.hidden = true;
-    el.help.hidden = false;
-  });
-  el.input.focus();
+  html.classList.remove('is-result');
+  if (!smallScreen.matches || !focus) html.classList.remove('is-compact');
+  el.result.hidden = true;
+  el.result.classList.remove('is-revealing');
+  el.finder.hidden = false;
+  el.input.value = '';
+  renderMatches([]);
+  hideNotice();
+  el.clear.hidden = true;
+  el.help.hidden = false;
+  if (focus) el.input.focus();
 }
 
 /* ---------- Events ---------- */
@@ -341,7 +344,7 @@ el.input.addEventListener('blur', () => {
   }, 150);
 });
 
-el.again.addEventListener('click', searchAgain);
+el.again.addEventListener('click', () => searchAgain());
 
 /* ---------- Start ---------- */
 
@@ -351,7 +354,7 @@ if (remembered?.id) {
   // Re-check against the current list: the seating plan may have changed since.
   ready.then((index) => {
     const fresh = index.find((entry) => entry.guest.id === remembered.id)?.guest;
-    if (!fresh) return searchAgain();
+    if (!fresh) return searchAgain({ focus: false }); // no longer on the list
     if (fresh.table !== remembered.table || fresh.name !== remembered.name) {
       storage.write(fresh);
       fillCard(fresh);

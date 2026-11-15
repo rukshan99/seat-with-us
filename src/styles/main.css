@@ -228,7 +228,7 @@ button {
 /* ---------- Hero: the invitation's lettering ---------- */
 
 .hero {
-  margin-top: clamp(150px, 31dvh, 290px);
+  margin-top: clamp(150px, max(31dvh, 60vw), 290px); /* petals scale with width */
 }
 
 .label,
