@@ -212,7 +212,19 @@ async function andMark(fontFile) {
   const pad = 4;
   const w = bb.x2 - bb.x1 + pad * 2;
   const h = bb.y2 - bb.y1 + pad * 2;
-  const d = p.toPathData(1);
+  // Serialised by hand: opentype.js's toPathData() can emit "NaN" when rounding.
+  const num = (v) => String(Number(v.toFixed(1)));
+  const d = p.commands
+    .map((c) =>
+      c.type === 'Z'
+        ? 'Z'
+        : c.type === 'Q'
+          ? `Q${num(c.x1)} ${num(c.y1)} ${num(c.x)} ${num(c.y)}`
+          : c.type === 'C'
+            ? `C${num(c.x1)} ${num(c.y1)} ${num(c.x2)} ${num(c.y2)} ${num(c.x)} ${num(c.y)}`
+            : `${c.type}${num(c.x)} ${num(c.y)}`,
+    )
+    .join('');
   return (
     `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${f(bb.x1 - pad)} ${f(bb.y1 - pad)} ${f(w)} ${f(h)}" ` +
     `class="and-mark" role="img" aria-label="and"><path d="${d}" fill="currentColor"/></svg>\n`
